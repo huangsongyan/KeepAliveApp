@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.hsy.keepaliveapp">
+
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!--excludeFromRecents 隐藏历史记录
+     persistent true 保持系统不被kill
+     -->
+    <application
+        android:name=".app.KeepAliveApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:persistent="true"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".MainActivity"
+            android:excludeFromRecents="false"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--一像素activity保活-->
+        <activity
+            android:name=".onepx.KeepAliveActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:finishOnTaskLaunch="true"
+            android:launchMode="singleInstance"
+            android:screenOrientation="portrait"
+            android:windowBackground="@android:color/transparent"
+            android:windowContentOverlay="@null"
+            android:windowIsTranslucent="true" />
+
+        <!--监听系统静态广播-->
+        <receiver
+            android:name=".receiver.KeepAliveReceiver"
+            android:exported="false"
+            android:process=":service">
+            <!--开机-->
+            <intent-filter android:priority="2147483647">
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <!--关机-->
+            <intent-filter android:priority="2147483647">
+                <action android:name="android.intent.action.ACTION_SHUTDOWN" />
+            </intent-filter>
+            <!--HOEM键-->
+            <intent-filter android:priority="2147483647">
+                <action android:name="android.intent.action.CLOSE_SYSTEM_DIALOGS" />
+            </intent-filter>
+            <!--网络状态,时间,时间区位,wifi状态(信号强度),电量 等 待补充-->
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
+                <action android:name="android.intent.action.BATTERY_CHANGED" />
+            </intent-filter>
+            <!--内存卡的状态广播-->
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BAD_REMOVAL" />
+                <action android:name="android.intent.action.MEDIA_EJECT" />
+                <action android:name="android.intent.action.MEDIA_MOUNTED" />
+                <action android:name="android.intent.action.MEDIA_REMOVED" />
+                <action android:name="android.intent.action.MEDIA_SCANNER_FINISHED" />
+                <action android:name="android.intent.action.MEDIA_SCANNER_STARTED" />
+                <action android:name="android.intent.action.MEDIA_SHARED" />
+                <action android:name="android.intent.action.MEDIA_UNMOUNTED" />
+
+                <data android:scheme="file" />
+            </intent-filter>
+
+            <!--监听第三方app ,微信,qq,友盟sdk,jpush 互相唤醒 待拦截-->
+
+        </receiver>
+
+        <receiver android:name=".receiver.AlarmReceiver" />
+
+
+        <service
+            android:name="com.hsy.keepaliveapp.service.GuardService"
+            android:process=":service" />
+
+        <receiver
+            android:name=".receiver.GuardReceiver"
+            android:process=":service" />
+
+        <service
+            android:name="com.hsy.keepaliveapp.service.EmptyService"
+            android:process=":emptyService" />
+        <receiver
+            android:name=".receiver.EmptyReceiver"
+            android:process=":emptyService" />
+
+
+        <service
+            android:name="com.hsy.keepaliveapp.service.GuardService$subService"
+            android:process=":service" />
+
+        <!-- 声明权限，使得仅有JobScheduler可以调用该服务-->
+        <service
+            android:name=".schedulerjob.DaemonJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:process=":service" />
+
+        <service
+            android:name=".service.AlarmService"
+            android:process=":service" />
+
+    </application>
+
+</manifest>
